@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, listUsers, deleteUser, authenticateUser } = require('../services/user.service.js');
+const { createUser, listUsers, deleteUser, authenticateUser } = require('../services/user.service');
 
 const identityRoute = express.Router();
 identityRoute.post('/create-user', createUser);

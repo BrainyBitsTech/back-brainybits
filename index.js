@@ -12,7 +12,7 @@ app.use(cors());
 const uri = "mongodb+srv://admin:19961994MeT@cluster0.hihxnf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 let dbClient = null;
 
-const getDatabase = async () => {
+export const getDatabase = async () => {
   if (!dbClient) {
     await connectToMongoDB();
     dbClient = client.db("brainybits");
