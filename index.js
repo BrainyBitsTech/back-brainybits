@@ -12,7 +12,7 @@ app.use(cors());
 const uri = "mongodb+srv://admin:19961994MeT@cluster0.hihxnf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 let dbClient = null;
 
-export const getDatabase = async () => {
+const getDatabase = async () => {
   if (!dbClient) {
     await connectToMongoDB();
     dbClient = client.db("brainybits");
@@ -46,8 +46,9 @@ app.use('/api/identity', userRouter);
 app.use('/api/product', productRouter);
 app.use('/api/category', categoriesRouter);
 
-
 app.listen(port, () => {
   connectToMongoDB();
   console.log(`Servidor rodando na port ${port}`);
 });
+
+module.exports = { getDatabase }; // Exporta a função getDatabase
