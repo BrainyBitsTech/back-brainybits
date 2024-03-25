@@ -1,6 +1,6 @@
 // product.service.js
 const { ObjectId } = require('mongodb');
-const { getDatabase } = require('../..');
+const { getDatabase } = require('../../server');
 const { uploadFile } = require('../aws');
 
 const createProduct = async (userId, product, images) => {  

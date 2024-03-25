@@ -1,6 +1,6 @@
 
 const { ObjectId } = require('mongodb');
-const { getDatabase } = require('../..');
+const { getDatabase } = require('../../server');
 
 const createCategories = async (category) => {
   const db = await getDatabase();

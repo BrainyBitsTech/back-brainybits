@@ -2,7 +2,7 @@
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { getDatabase } = require('../..');
+const { getDatabase } = require('../../db');
 
 const SECRET_KEY = 'ae2b6dd9d5361eb5abeb8bb6eff5d2489fc6fea849640244ba10bbdab3dd37201c53b39597d016eea85be3f85c7553b492dbdd031147d4480b0b0ed1d421468a';
 
