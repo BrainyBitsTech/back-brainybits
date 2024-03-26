@@ -1,4 +1,3 @@
-// user.service.js
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -6,10 +5,14 @@ const { getDatabase } = require('../../db');
 
 const SECRET_KEY = 'ae2b6dd9d5361eb5abeb8bb6eff5d2489fc6fea849640244ba10bbdab3dd37201c53b39597d016eea85be3f85c7553b492dbdd031147d4480b0b0ed1d421468a';
 
+const getCollection = async () => {
+  const db = await getDatabase('brainybits');
+  return db.collection('users');
+};
+
 const createUser = async (req, res) => {
-  const db = await getDatabase();
-  const userCollection = db.collection("users");
   try {
+    const userCollection = await getCollection();
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await userCollection.insertOne({
       ...req.body,
@@ -22,9 +25,8 @@ const createUser = async (req, res) => {
 };
 
 const listUsers = async (req, res) => {
-  const db = await getDatabase();
-  const userCollection = db.collection("users");
   try {
+    const userCollection = await getCollection();
     const users = await userCollection.find({}).toArray();
     res.status(200).send(users);
   } catch (error) {
@@ -33,9 +35,8 @@ const listUsers = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  const db = await getDatabase();
-  const userCollection = db.collection("users");
   try {
+    const userCollection = await getCollection();
     const result = await userCollection.deleteOne({ _id: new ObjectId(req.params.id) });
     if (result.deletedCount === 0) {
       return res.status(404).send({ message: 'Usuário não encontrado' });
@@ -44,12 +45,11 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).send(error);
   }
-}
+};
 
 const authenticateUser = async (req, res) => {
-  const db = await getDatabase();
-  const userCollection = db.collection("users");
   try {
+    const userCollection = await getCollection();
     const { email, password } = req.body;
     const user = await userCollection.findOne({ email });
 
