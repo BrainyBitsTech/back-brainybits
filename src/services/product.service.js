@@ -8,17 +8,18 @@ const getCollection = async () => {
 };
 
 const createProduct = async (userId, product, images) => {
+  console.log('images => ', images)
+  console.log('product => ', product)
   try {
     const productCollection = await getCollection();
 
-    let imagePaths = [];
-    if (images) {
-      imagePaths = await Promise.all(images.map(async (image) => {
-        const result = await uploadFile(image);
-        return result.Key;
-      }));
-    }
-
+    const imagesResult = []
+    await Promise.all(images.map(async (image) => {
+      const result = await uploadFile(image);
+      imagesResult.push({ key: result.key, location: result.Location })
+    }));
+    
+    
     const newProduct = {
       title: product.title,
       description: product.description,
@@ -26,14 +27,13 @@ const createProduct = async (userId, product, images) => {
       date: new Date(),
       categories: product.categories,
       active: product.active ?? false,
-      variants: product.variants.map(variant => ({
+      images: imagesResult,
+      variants: await Promise.all(product.variants.map(async (variant, index) => ({
         active: variant.active,
-        images: variant.images,
-        price: variant.price,
+        price: parseFloat(variant.price),
         size: variant.size,
-        quantity: variant.quantity
-      })),
-      images: imagePaths
+        quantity: parseInt(variant.quantity),
+      }))),
     };
 
     await productCollection.insertOne(newProduct);
@@ -42,6 +42,7 @@ const createProduct = async (userId, product, images) => {
     throw new Error('Erro ao criar o produto: ' + error.message);
   }
 };
+
 
 const updateProduct = async (userId, productId, updates, images) => {
   try {

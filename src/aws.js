@@ -4,10 +4,10 @@ const fs = require('fs');
 
 dotenv.config();
 
-const bucketName = process.env.AWS_BUCKET_NAME;
-const region = process.env.AWS_BUCKET_REGION;
-const accessKeyId = process.env.AWS_ACCESS_KEY;
-const secretAccessKey = process.env.AWS_SECRET_KEY;
+const bucketName = "brainybits";
+const region = "sa-east-1";
+const accessKeyId = "AKIA4MTWNTFV7LZNMJP5";
+const secretAccessKey = "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";
 
 const s3 = new S3({
   region,
