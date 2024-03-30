@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb');
 const { getDatabase } = require('../../db');
-const { uploadFile } = require('../aws');
+const { uploadFile, getFileStream } = require('../aws');
+
 
 const getCollection = async () => {
   const db = await getDatabase('brainybits');
@@ -8,18 +9,15 @@ const getCollection = async () => {
 };
 
 const createProduct = async (userId, product, images) => {
-  console.log('images => ', images)
-  console.log('product => ', product)
   try {
     const productCollection = await getCollection();
 
     const imagesResult = []
     await Promise.all(images.map(async (image) => {
       const result = await uploadFile(image);
-      imagesResult.push({ key: result.key, location: result.Location })
+      imagesResult.push({ key: result.key, location: result.location })
     }));
-    
-    
+
     const newProduct = {
       title: product.title,
       description: product.description,
@@ -43,29 +41,38 @@ const createProduct = async (userId, product, images) => {
   }
 };
 
-
 const updateProduct = async (userId, productId, updates, images) => {
   try {
     const productCollection = await getCollection();
 
-    let imagePaths = [];
-    if (images && images.length > 0) {
-      imagePaths = await Promise.all(images.map(async (image) => {
-        const result = await uploadFile(image);
-        return result.Key;
-      }));
+    const existingProduct = await productCollection.findOne({
+      _id: new ObjectId(productId),
+      userId: new ObjectId(userId)
+    });
+
+    if (!existingProduct) {
+      throw new Error("Produto não encontrado ou você não tem acesso para editar.");
     }
 
-    const updatedProduct = {
-      ...updates,
-      userId: new ObjectId(userId),
-      date: new Date(),
-      categories: updates.categories || [],
-      variants: updates.variants?.map(variant => ({
+    let updatedProduct = { ...existingProduct, ...updates };
+
+    if (images && images.length > 0) {
+      const newImages = await Promise.all(images.map(async (image) => {
+        const result = await uploadFile(image);
+        return { key: result.key, location: result.location };
+      }));
+      updatedProduct.images = [...updatedProduct.images, ...newImages];
+    }
+
+    if (updatedProduct.variants) {
+      updatedProduct.variants = updatedProduct.variants.map(variant => ({
         ...variant,
-        image: variant.images || []
-      })) || [],
-    };
+        price: parseFloat(variant.price),
+        quantity: parseInt(variant.quantity),
+        active: variant.active ?? true,
+        size: variant.size ?? ''
+      }));
+    }
 
     const result = await productCollection.updateOne(
       { _id: new ObjectId(productId), userId: new ObjectId(userId) },
@@ -86,10 +93,28 @@ const updateProduct = async (userId, productId, updates, images) => {
   }
 };
 
-const listProducts = async (userId) => {
+const listProducts = async (userId, productId) => {
   try {
     const productCollection = await getCollection();
-    return await productCollection.find({ userId: new ObjectId(userId) }).toArray();
+    let products = []
+
+    if (productId) {
+      const product = await productCollection.findOne({ _id: new ObjectId(productId), userId: new ObjectId(userId) })
+      products.push(product)
+    } else {
+      products = await productCollection.find({ userId: new ObjectId(userId) }).toArray()
+    }
+
+    const updatedProducts = await Promise.all(products.map(async (e) => {
+      const images = await Promise.all(e.images.map(async (s) => {
+        const stream = await getFileStream(s.key);
+        return { key: s.key, stream };
+      }));
+      return { ...e, images };
+    }));
+
+
+    return updatedProducts
   } catch (error) {
     throw new Error('Erro ao listar os produtos: ' + error.message);
   }
