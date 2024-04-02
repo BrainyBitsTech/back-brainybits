@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 const { getDatabase } = require('../../db');
-const { uploadFile } = require('../aws');
+const { uploadFile, getFileStream } = require('../aws');
 
 const getCollection = async () => {
   const db = await getDatabase('brainybits');
@@ -97,18 +97,16 @@ const listCategories = async (userId, categoryId) => {
       categories = await categoriesCollection.find({ userId: new ObjectId(userId) }).toArray();
     }
 
-    // const updatedCategory = await Promise.all(categories.map(async (e) => {
-    //   console.log('e => ', e)
-    //   const images = await Promise.all(e.image.map(async (s) => {
-    //     console.log('s => ', s)
-    //     const stream = await getFileStream(s.key);
-    //     console.log("🚀 ~ images ~ stream:", stream)
-    //     return { key: s.key, stream };
-    //   }));
-    //   console.log("🚀 ~ images ~ images:", images)
-      
-    //   categories[i].image = images
-    // }));
+    await Promise.all(categories.map(async (e, i) => {
+      const images = await Promise.all(e.image.map(async (s) => {
+        const stream = await getFileStream(s.key);
+        return { key: s.key, stream };
+      }));
+
+      console.log('categories => ', categories[i])
+
+      categories[i].showImage = images
+    }));
 
     return categories
   } catch (error) {
