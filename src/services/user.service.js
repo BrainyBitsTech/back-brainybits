@@ -10,16 +10,25 @@ const getCollection = async () => {
   return db.collection('users');
 };
 
-const createUser = async (req, res) => {
+const createUser = async (body) => {
   try {
     const userCollection = await getCollection();
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = await userCollection.insertOne({
-      ...req.body,
-      password: hashedPassword
-    });
-    res.status(201).send(newUser);
-  } catch (error) {
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+
+    const newUser = {
+      name: body.name,
+      password: hashedPassword,
+      email: body.email,
+      admin: body.admin || false,
+      cpf: body.cpf,
+      phone: body.phone,
+      cep: body.cep,
+      address: body.address
+    }
+
+    await userCollection.insertOne(newUser);
+    return newUser
+  } catch (errro) {
     res.status(400).send(error);
   }
 };
@@ -28,20 +37,19 @@ const listUsers = async (req, res) => {
   try {
     const userCollection = await getCollection();
     const users = await userCollection.find({}).toArray();
-    res.status(200).send(users);
+
+    return users
   } catch (error) {
     res.status(500).send(error);
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req) => {
   try {
     const userCollection = await getCollection();
     const result = await userCollection.deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0) {
-      return res.status(404).send({ message: 'Usuário não encontrado' });
-    }
-    res.status(200).send({ message: 'Usuário deletado com sucesso' });
+    
+    return result
   } catch (error) {
     res.status(500).send(error);
   }
