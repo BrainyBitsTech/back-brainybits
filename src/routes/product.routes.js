@@ -39,7 +39,7 @@ productRouter.post('/:userId', upload.any(), async (req, res) => {
 
 productRouter.get('/:userId', async (req, res) => {
   try {
-    const products = await listProducts();
+    const products = await listProducts(req.params.userId);
     res.status(200).send(products);
   } catch (error) {
     res.status(400).send(error);
@@ -48,7 +48,7 @@ productRouter.get('/:userId', async (req, res) => {
 
 productRouter.get('/:userId/:productId', async (req, res) => {
   try {
-    const products = await listProducts(req.params.productId)
+    const products = await listProducts(req.params.userId, req.params.productId)
     res.status(200).send(products)
   } catch (error) {
     res.status(400).send(error.message)
