@@ -35,7 +35,9 @@ const createProduct = async (userId, product, images) => {
         active: variant.active,
         colorText: variant.colorText,
         price: parseFloat(variant.price),
-        sizes: variant.sizes,
+        size: variant.size,
+        quantity: parseInt(variant.quantity),
+        promoted_price: variant.promoted_price,
       }))),
     };
 

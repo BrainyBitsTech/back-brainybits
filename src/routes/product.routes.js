@@ -2,8 +2,10 @@ const express = require('express');
 const { createProduct, listProducts, deleteProduct, updateProduct } = require('../services/product.service.js');
 const multer = require('multer');
 const uuid = require("uuid").v4
+const fs = require('fs-extra');
 
 const productRouter = express.Router();
+const uploadsFolder = 'uploads';
 
 const storage = multer.diskStorage({ destination: (req, file, cb) => {
   cb(null, "uploads")
@@ -14,11 +16,21 @@ const storage = multer.diskStorage({ destination: (req, file, cb) => {
   }
 })
 
+const limparPastaUploads = async () => {
+  try {
+    await fs.emptyDir(uploadsFolder);
+    console.log('Pasta de uploads limpa com sucesso!');
+  } catch (err) {
+    console.error('Erro ao limpar a pasta de uploads:', err);
+  }
+};
+
 const upload = multer({ storage });
 
 productRouter.post('/:userId', upload.any(), async (req, res) => {
   try {
     const result = await createProduct(req.params.userId, req.body, req.files);
+    limparPastaUploads();
     res.status(201).send(result);
   } catch (error) {
     res.status(400).send(error);
@@ -27,7 +39,7 @@ productRouter.post('/:userId', upload.any(), async (req, res) => {
 
 productRouter.get('/:userId', async (req, res) => {
   try {
-    const products = await listProducts(req.params.userId);
+    const products = await listProducts();
     res.status(200).send(products);
   } catch (error) {
     res.status(400).send(error);
@@ -36,7 +48,7 @@ productRouter.get('/:userId', async (req, res) => {
 
 productRouter.get('/:userId/:productId', async (req, res) => {
   try {
-    const products = await listProducts(req.params.userId, req.params.productId)
+    const products = await listProducts(req.params.productId)
     res.status(200).send(products)
   } catch (error) {
     res.status(400).send(error.message)

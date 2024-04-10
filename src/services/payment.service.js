@@ -12,8 +12,22 @@ const getCollection = async () => {
 
 export const payment = async (req) => {
   const pagamento = {
-    items: req.body.items,
-    payer: req.body.payer,
+    body: {
+      transaction_amount: req.transaction_amount,
+      token: req.token,
+      description: req.description,
+      installments: req.installments,
+      payment_method_id: req.paymentMethodId,
+      issuer_id: req.issuer,
+      payer: {
+        email: req.email,
+        identification: {
+          type: req.identificationType,
+          number: req.number
+        }
+      }
+    },
+    requestOptions: { idempotencyKey: '<SOME_UNIQUE_VALUE>' }
   };
 
   try {

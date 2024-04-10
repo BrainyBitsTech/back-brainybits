@@ -28,9 +28,7 @@ const s3 = new S3({
 });
 
 const uploadFile = async (file) => {
-  console.log("🚀 ~ uploadFile ~ file:", file)
   const fileStream = fs.createReadStream(file.path);
-
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
@@ -48,18 +46,14 @@ const uploadFile = async (file) => {
   return objectUrl;
 };
 
-
 const getFileStream = async (key) => {
   const params = {
     Bucket: bucketName,
     Key: key
   }
-  console.log("🚀 ~ getFileStream ~ params:", params)
   const command = new GetObjectCommand(params);
-  console.log("🚀 ~ getFileStream ~ command:", command)
   const seconds = 10000
   const url = await getSignedUrl(s3Client, command, { expiresIn: seconds });
-  console.log("🚀 ~ getFileStream ~ url:", url)
   
   return url
 };
