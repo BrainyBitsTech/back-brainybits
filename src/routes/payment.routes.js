@@ -13,8 +13,7 @@ paymentRouter.post('/create_preference', async (req, res) => {
       quantity: item.quantity,
     }));
 
-    const preference = new Preference(client); // Crie uma nova instância de Preference
-
+    const preference = new Preference(client); 
     preference.create({
       body: {
         items: preferenceItems,
@@ -22,7 +21,7 @@ paymentRouter.post('/create_preference', async (req, res) => {
     })
     .then((response) => {
       console.log(response);
-      res.json({ preferenceId: response.id });
+      res.json(response);
     })
     .catch((error) => {
       console.error('Erro ao criar a preferência:', error);
