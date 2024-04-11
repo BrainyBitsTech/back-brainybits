@@ -30,7 +30,8 @@ const createProduct = async (userId, product, images) => {
       images: imagesResult,
       height: product.height,
       width: product.width,
-      weight: product. weight,
+      weight: product.weight,
+      length: product.length,
       variants: await Promise.all(product.variants.map(async (variant, index) => ({
         active: variant.active,
         colorText: variant.colorText,
