@@ -5,11 +5,12 @@ const paymentRouter = express.Router();
 const client = new MercadoPagoConfig({ accessToken: 'APP_USR-331439273297989-040710-95a16a0cbd0a59ee613f05580f4cee37-358848285' });
 
 paymentRouter.post('/create_preference', async (req, res) => {
+  console.log('chamada')
   try {
     const { items } = req.body;
     const preferenceItems = items.map((item) => ({
       title: item.title,
-      unit_price: item.price,
+      unit_price: item.unit_price,
       quantity: item.quantity,
     }));
 
