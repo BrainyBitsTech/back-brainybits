@@ -33,12 +33,8 @@ const createProduct = async (userId, product, images) => {
       weight: product.weight,
       length: product.length,
       variants: await Promise.all(product.variants.map(async (variant, index) => ({
-        active: variant.active,
         colorText: variant.colorText,
-        price: parseFloat(variant.price),
-        size: variant.size,
-        quantity: parseInt(variant.quantity),
-        promoted_price: variant.promoted_price,
+        sizes: variant.sizes,
       }))),
     };
 
